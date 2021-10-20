@@ -1,6 +1,9 @@
 let current_questions;
 let current_answers;
 
+/* 
+    Make Quiz
+*/
 //Reset container and add HTML to get data
 function makeQuiz(){
     let container = document.getElementById('container')
@@ -16,7 +19,7 @@ function makeQuiz(){
                 <div><label for="option2">Option 2</label><input type="text" placeholder="Option 2" id="option2" class="option"><input type="radio" name="option" value="option2"></div>
             </div>
             <button onclick="addOtherOption()">Add option</button>
-            <button onclick="addQuestion()">Add Question</button>
+            <button onclick="addQuestion()">Add Question</button><br>
             <button onclick="generateQuiz()">Generate Quiz</button>
         </div>
     `;
@@ -79,6 +82,9 @@ function checkInput(title, answers){
 function getAnswer(){
     let ans;
     let radioButtons = document.getElementsByName('option');
+
+    console.log(ans);
+
     for(let i=0 ; i<radioButtons.length ; i++){
         if(radioButtons[i].checked){
             ans = radioButtons[i].value;
@@ -126,8 +132,63 @@ function generateQuiz(){
 
     console.log(newQuiz)//TODO: Debug
 
-    //TODO: Save and load quiz from local storage
+    saveQuiz(newQuiz);
 }
+
+/* 
+    Load quiz
+*/
+function loadQuiz(){
+    let quizes = loadQuizesFromStorage();
+    console.log(quizes);
+
+    if(quizes == null){
+        alert("Its void :c");
+        return;
+    }
+
+    let container = document.getElementById('container')
+    container.innerHTML = "";
+
+    let selectList = createTestList(quizes);
+    
+    let button = document.createElement('button');
+    button.onclick = takeTest;
+    button.innerHTML = "Select";
+    
+    let testContainer = document.createElement('div');
+    testContainer.id = "test-container";
+    
+    container.appendChild(selectList);
+    container.appendChild(button);
+    container.appendChild(testContainer);
+}
+
+function createTestList(quizes){
+    //Create select elemnt and add options
+    let select = document.createElement('select');
+    select.id = "test-list";
+    
+    quizes.forEach(element => {
+        let option = document.createElement('option');
+        option.value = element.title;
+        option.innerHTML = element.title;
+        select.appendChild(option);
+    });
+
+    return select;
+}
+
+function takeTest(){
+    let select = document.getElementById('test-list');
+    let title = select.options[select.selectedIndex].value;
+    alert(title);
+    let quiz = loadQuizFromStorage(title);
+}
+
+/* 
+    LOCAL STORAGE 
+*/
 
 //Save the new quiz in the local storage
 function saveQuiz(quiz){
@@ -142,14 +203,28 @@ function saveQuiz(quiz){
     }
 }
 
-function loadQuiz(){
+function loadQuizesFromStorage(){
+    let quizs = [];
 
+    if(localStorage.getItem('quizs') === null){
+        alert("Aun no hay ningun examen.");
+    }else{
+        quizs = JSON.parse(localStorage.getItem('quizs'));
+    }
+
+    return quizs;
 }
 
-function getQuizTitles(){
-
+function loadQuizFromStorage(title){
+    if(localStorage.getItem('quizs') === null){
+        alert("Aun no hay ningun examen.");
+    }else{
+        let quizs = JSON.parse(localStorage.getItem('quizs'));
+        let currentQuiz = quizs.find(quiz => quiz.title == title)
+        console.log(currentQuiz);
+    }
 }
 
-function deleteQuiz(){
+function deleteQuizFromStorage(){
 
 }
